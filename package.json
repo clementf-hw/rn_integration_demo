@@ -1,6 +1,6 @@
 {
   "name": "d001rn",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -10,9 +10,13 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "ramda": "^0.27.0",
     "react": "16.11.0",
     "react-native": "0.62.2",
-    "react-native-hms-map": "./react-native-hms-map"
+    "react-native-hms-location": "./hms_kits/react-native-hms-location",
+    "react-native-hms-map": "./hms_kits/react-native-hms-map",
+    "react-native-hwpush": "./hms_kits/react-native-hwpush",
+    "react-native-permissions": "^2.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
