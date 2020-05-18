@@ -43,29 +43,18 @@ export const styles = StyleSheet.create({
       textAlign: 'right',
     },
     map: {
-      position: 'absolute',
-      top: 50,
-      left: 0,
-      right: 0,
-      bottom: 0,
+      flex: 0.8
     },
     container: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      justifyContent: 'flex-end',
-      alignItems: 'center',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'stretch',
+      flex: 1
     },
     textBox: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-      textAlign: 'center'
+      flex: 0.1
     },
+    btnScan: {
+      flex: 0.1
+    }
   });

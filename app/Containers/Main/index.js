@@ -11,14 +11,17 @@ import {
   View,
   NativeModules,
   NativeEventEmitter,
-  Text
+  Text,
+  Button
 } from 'react-native';
 import { styles } from './styles'
-import { initialRegion } from '../../Constants/CommonConstants'
+import { initialRegion, requiredPermissions } from '../../Constants/CommonConstants'
 import MapView from 'react-native-hms-map';
 import { RNRemoteMessage } from 'react-native-hwpush';
-import { getLastLocation, parseLocation, getLocationPermission } from '../../Helpers/LocationHelper'
+import { getLastLocation, parseLocation } from '../../Helpers/LocationHelper'
 import * as R from 'ramda'
+import ReactNativeHmsScan from 'react-native-hms-scan'
+import { handleMultiplePermissions } from '../../Helpers/PermissionHelper'
 
 export default class App extends Component {
   constructor(props) {
@@ -35,11 +38,15 @@ export default class App extends Component {
       'PushTokenMsgReceiverEvent', 
       event => { 
         console.log('log received token:' + event.token + '\n')
+        this.setState({
+          displayText: event.token
+        })
       }, 
     );
     this.getToken()
     this.initDataMessageListener()
-    getLocationPermission()
+
+    handleMultiplePermissions(requiredPermissions)
   }
 
   getToken() {
@@ -48,6 +55,7 @@ export default class App extends Component {
         RNRemoteMessage.DEFAULT_TOKEN_SCOPE,
         (result, token) => {
           const displayText = result === '0' ? token : 'Token registration failed, please restart.'
+          console.log('log received token:' + token + '\n')
           this.setState({
             displayText
           })
@@ -68,9 +76,8 @@ export default class App extends Component {
 
   handleData(data) {
     const message = R.propOr(false, "message", data)
-    const location = R.propOr(false, "location", data)
+    const location = R.propOr(false, "location", data) 
     const myLocation = R.propOr(false, "my_location", data)
-    
     if (message) this.onMessageReceived(message)
     if (location) this.onLocationReceived(location)
     if (!location && myLocation) this.onRequestCurrentLocation()
@@ -83,7 +90,7 @@ export default class App extends Component {
   }
 
   onLocationReceived(locationData) {
-    const location = JSON.parse(locationData)
+    const location =  typeof locationData === "object" ? locationData : JSON.parse(locationData)
     this.setState({
       region: {
         latitude: parseFloat(location.lat),
@@ -105,6 +112,24 @@ export default class App extends Component {
     ).catch(err => console.error(err))
   }
 
+  async startScan() {
+    try {
+      const data = await ReactNativeHmsScan.startScan();
+      const qrcodeData = {
+        message: (JSON.parse(data)).message,
+        location: (JSON.parse(data)).location,
+        my_location: (JSON.parse(data)).my_location
+      }
+      this.handleData(qrcodeData)
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  onScan = () => {
+    this.startScan()
+  }
+
   render() {
     const { displayText, region } = this.state
     return (
@@ -112,6 +137,10 @@ export default class App extends Component {
         <Text style={styles.textBox}>
           {displayText}
         </Text>
+        <Button 
+          title={'Scan Button'}
+          onPress={this.onScan}
+        />
         <MapView 
           style={styles.map} 
           region={region}
