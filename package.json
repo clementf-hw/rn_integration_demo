@@ -17,7 +17,8 @@
     "react-native-hms-map": "./hms_kits/react-native-hms-map",
     "react-native-hms-scan": "./hms_kits/react-native-hms-scan",
     "react-native-hwpush": "./hms_kits/react-native-hwpush",
-    "react-native-permissions": "^2.1.2"
+    "react-native-permissions": "^2.1.2",
+    "url": "^0.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

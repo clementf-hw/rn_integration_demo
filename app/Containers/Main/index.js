@@ -12,7 +12,8 @@ import {
   NativeModules,
   NativeEventEmitter,
   Text,
-  Button
+  Button,
+  Linking
 } from 'react-native';
 import { styles } from './styles'
 import { initialRegion, requiredPermissions } from '../../Constants/CommonConstants'
@@ -22,6 +23,7 @@ import { getLastLocation, parseLocation } from '../../Helpers/LocationHelper'
 import * as R from 'ramda'
 import ReactNativeHmsScan from 'react-native-hms-scan'
 import { handleMultiplePermissions } from '../../Helpers/PermissionHelper'
+import url from 'url'
 
 export default class App extends Component {
   constructor(props) {
@@ -44,8 +46,7 @@ export default class App extends Component {
       }, 
     );
     this.getToken()
-    this.initDataMessageListener()
-
+    this.initPushMessageListener()
     handleMultiplePermissions(requiredPermissions)
   }
 
@@ -63,7 +64,24 @@ export default class App extends Component {
     );
   }
 
-  initDataMessageListener() {
+  initPushMessageListener() {
+    // Get the url that opens the app
+    const getAppOpenUrl = async () => {
+      const initialUrl = await Linking.getInitialURL();
+      console.log('Opening deeplink: ' + initialUrl)
+      this.handleDeepLink(initialUrl)
+    };
+    getAppOpenUrl()
+
+    // Listen to plain Notification Messages
+    Linking.addEventListener('url', 
+      event => {
+        console.log("Notification deeplink: " + event.url)
+        this.handleDeepLink(event.url)
+      }
+    );
+
+    // Listen to Data Messages
     const eventEmitter = new NativeEventEmitter(NativeModules.ToastExample); 
     this.listenerPushMsg = eventEmitter.addListener( 
       'PushMsgReceiverEvent', 
@@ -72,6 +90,12 @@ export default class App extends Component {
         this.handleData(JSON.parse(message.getData()))
       }
     );
+  }
+
+  handleDeepLink(link) {
+    if (!link) return 
+    const linkObject = url.parse(link, true)
+    console.log(linkObject)
   }
 
   handleData(data) {
@@ -153,3 +177,5 @@ export default class App extends Component {
     );
   }
 };
+
+
